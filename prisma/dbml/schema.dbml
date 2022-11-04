@@ -1,0 +1,251 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id Int [pk, increment]
+  email String [unique, not null]
+  password String [not null]
+  name String
+  phone String
+  created DateTime [default: `now()`]
+  isActive Boolean [not null, default: true]
+  lastActive DateTime [not null]
+  prefs UserPrefs
+  cart Cart [not null]
+  wishlist Wishlist
+  userGroup UserGroup [not null]
+  userGroupId Int [not null, default: 1]
+  order Order [not null]
+  userPrefsId Int
+  wishlistId Int
+}
+
+Table UserGroup {
+  id Int [pk, increment]
+  title String [unique, not null]
+  discount Decimal
+  user User [not null]
+}
+
+Table UserPrefs {
+  id Int [pk, increment]
+  prefs Json
+  user User [not null]
+}
+
+Table Cart {
+  id Int [pk, increment]
+  details CartDetails [not null]
+  user User
+  userId Int
+  created DateTime [default: `now()`]
+  updated DateTime
+  order Order
+  orderId Int [unique]
+}
+
+Table CartDetails {
+  id Int [pk, increment]
+  product Product [not null]
+  quantity Int [not null, default: 1]
+  cart Cart [not null]
+  cartId Int [unique, not null]
+}
+
+Table Wishlist {
+  id Int [pk, increment]
+  product Product [not null]
+  user User [not null]
+}
+
+Table Product {
+  id Int [pk, increment]
+  sku String [not null]
+  code String [unique, not null]
+  barcode String [unique]
+  caratage String
+  weight Decimal
+  price Decimal
+  priceBefore Decimal
+  cost Decimal
+  discount Decimal
+  margin Decimal
+  created DateTime [default: `now()`]
+  updated DateTime
+  isActive Boolean [not null, default: true]
+  title String
+  description String
+  text String
+  seoH1 String
+  seoTitle String
+  seoDescription String
+  brand Brand [not null]
+  brandId Int [not null, default: 1]
+  category Category [not null]
+  categoryId Int [not null, default: 1]
+  supplier Supplier [not null]
+  supplierId Int [not null, default: 1]
+  image Image [not null]
+  wishlist Wishlist [not null]
+  cartDetails CartDetails [not null]
+  orderProducts OrderProducts [not null]
+}
+
+Table Image {
+  id Int [pk, increment]
+  title String
+  alt String
+  order Int [not null, default: 0]
+  path String
+  product Product
+  productId Int
+}
+
+Table Category {
+  id Int [pk, increment]
+  created DateTime [default: `now()`]
+  updated DateTime
+  isActive Boolean [not null, default: true]
+  title String [unique]
+  description String
+  text String
+  seoH1 String
+  seoTitle String
+  seoDescription String
+  thumbnail String
+  parentCategory Int [not null, default: 1]
+  product Product [not null]
+}
+
+Table Brand {
+  id Int [pk, increment]
+  created DateTime [default: `now()`]
+  updated DateTime
+  isActive Boolean [not null, default: true]
+  title String [unique]
+  description String
+  text String
+  seoH1 String
+  seoTitle String
+  seoDescription String
+  thumbnail String
+  logo String
+  product Product [not null]
+}
+
+Table Supplier {
+  id Int [pk, increment]
+  created DateTime [default: `now()`]
+  updated DateTime
+  isActive Boolean [not null, default: true]
+  title String
+  description String
+  text String
+  thumbnail String
+  logo String
+  product Product [not null]
+}
+
+Table Order {
+  id Int [pk, increment]
+  created DateTime [default: `now()`]
+  updated DateTime
+  user User [not null]
+  userId Int [not null]
+  code String [unique, not null]
+  weight Decimal [not null]
+  total Decimal [not null]
+  discount Decimal [not null]
+  deliveryPrice Decimal [not null]
+  status OrderStatus [not null]
+  statusId Int [not null, default: 1]
+  details OrderDetails [not null]
+  products OrderProducts [not null]
+  detailsId Int [unique, not null]
+  cart Cart
+}
+
+Table OrderStatus {
+  id Int [pk, increment]
+  title String [not null]
+  isActive Boolean [not null, default: true]
+  order Order [not null]
+}
+
+Table OrderDetails {
+  id Int [pk, increment]
+  created DateTime [default: `now()`]
+  updated DateTime
+  clientComment String
+  managerComment String
+  city String
+  adress String
+  phone String
+  recipient String
+  promocode String
+  order Order [not null]
+}
+
+Table OrderProducts {
+  id Int [pk, increment]
+  quantity Int [not null, default: 1]
+  product Product [not null]
+  productId Int [not null]
+  order Order [not null]
+  orderId Int [not null]
+}
+
+Table Settings {
+  id Int [pk, increment]
+  title String [not null]
+  value Json [not null]
+}
+
+Table Localisation {
+  id Int [pk, increment]
+  key String
+  en String
+  he String
+  ru String
+}
+
+Table CartDetailsToProduct {
+  productId Int [ref: > Product.id]
+  cartdetailsId Int [ref: > CartDetails.id]
+}
+
+Table ProductToWishlist {
+  productId Int [ref: > Product.id]
+  wishlistId Int [ref: > Wishlist.id]
+}
+
+Ref: User.userPrefsId > UserPrefs.id [delete: Cascade]
+
+Ref: User.wishlistId > Wishlist.id [delete: Cascade]
+
+Ref: User.userGroupId > UserGroup.id
+
+Ref: Cart.userId > User.id
+
+Ref: Cart.orderId - Order.id
+
+Ref: CartDetails.cartId > Cart.id
+
+Ref: Product.brandId > Brand.id
+
+Ref: Product.categoryId > Category.id
+
+Ref: Product.supplierId > Supplier.id
+
+Ref: Image.productId > Product.id
+
+Ref: Order.userId > User.id
+
+Ref: Order.statusId > OrderStatus.id
+
+Ref: Order.detailsId > OrderDetails.id [delete: Cascade]
+
+Ref: OrderProducts.productId > Product.id
+
+Ref: OrderProducts.orderId > Order.id [delete: Cascade]
