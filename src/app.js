@@ -51,7 +51,7 @@ app.use(compression());
 app.use(cors({ origin: clientOrigins }));
 
 // auth
-app.all('*', checkJwt);
+// app.all('*', checkJwt);
 
 // v1 api routes
 app.use("/v1", routes);
