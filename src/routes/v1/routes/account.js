@@ -42,8 +42,6 @@ router
         });
     })
     .get("/me", checkJwt, async function (req, res, next) {
-        const email = req.body.email;
-        const password = req.body.password;
 
         const user = await prisma.user.findUnique({
             where: {
