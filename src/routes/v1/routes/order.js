@@ -3,9 +3,10 @@ var router = express.Router();
 
 const qs = require("qs");
 const prisma = require ("./../../../utils/prisma");
+const { checkJwt } = require("./../../../auth/check-jwt");
 
 router
-    .get("/:id", async function (req, res, next) {
+    .get("/:id", checkJwt, async function (req, res, next) {
         const id = parseInt(req.params.id) || 0;
 
         const data = await prisma.order.findUnique({
@@ -20,7 +21,7 @@ router
         });
         res.json(data);
     })
-    .get("/", async function (req, res, next) {
+    .get("/", checkJwt, async function (req, res, next) {
         const data = await prisma.order.findMany({
             include: {
                 user: true,
@@ -30,7 +31,7 @@ router
         });
         res.json(data);
     })
-    .post("/", async function (req, res, next) {
+    .post("/", checkJwt, async function (req, res, next) {
         const order = qs.parse(req.body);
         try {
             const result = await prisma.$transaction(async () => {

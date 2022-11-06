@@ -1,24 +1,30 @@
-// const jwt = require('express-jwt');
-const { expressjwt: jwt } = require("express-jwt");
-const jwksRsa = require("jwks-rsa");
-const { auth } = require("express-oauth2-jwt-bearer");
+/* eslint-disable security/detect-possible-timing-attacks */
+var express = require("express");
+var app = express();
+// var jwt = require("express-jwt"); Error
+// const { expressjwt: jwt } = require("express-jwt");
+// var jwks = require("jwks-rsa");
+const jwt = require("jsonwebtoken");
 
-const appOrigin = process.env.APP_ORIGIN;
-const audience = process.env.AUTH0_AUDIENCE;
-const issuer = process.env.AUTH0_ISSUER;
+function checkJwt(req, res, next) {
+    // const authHeader = req.headers["authorization"];
+    const authHeader = req.header("authorization");
+    const token = authHeader && authHeader.split(" ")[1];
+    console.log(req.header);
+    if (token == null) {
+        return res.sendStatus(401);
+    }
 
-const checkJwt = jwt({
-    secret: jwksRsa.expressJwtSecret({
-        cache: true,
-        rateLimit: true,
-        jwksRequestsPerMinute: 5,
-        jwksUri: `${issuer}.well-known/jwks.json`,
-      }),
-    
-      audience: audience,
-      issuer: issuer,
-      algorithms: ["RS256"],
-});
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        console.log(err);
+
+        if (err) return res.sendStatus(403);
+
+        req.user = user;
+
+        next();
+    });
+}
 
 module.exports = {
     checkJwt,

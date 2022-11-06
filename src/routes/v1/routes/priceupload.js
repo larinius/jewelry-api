@@ -3,9 +3,10 @@ var router = express.Router();
 
 const readXlsxFile = require("read-excel-file/node");
 const prisma = require("./../../../utils/prisma");
+const { checkJwt } = require("./../../../auth/check-jwt");
 const fs = require("fs");
 
-router.post("/", (req, res) => {
+router.post("/", checkJwt, (req, res) => {
     // Log the files to the console
 
     const file = req.files.file;

@@ -16,6 +16,7 @@ const fileUpload = require("express-fileupload");
 const { clientOrigins } = require("./auth/env.dev");
 
 const { checkJwt } = require("./auth/check-jwt");
+var { unless } = require("express-unless");
 
 const { errorConverter, errorHandler } = require("./middlewares/error");
 const ApiError = require("./utils/ApiError");
@@ -51,7 +52,10 @@ app.use(compression());
 app.use(cors({ origin: clientOrigins }));
 
 // auth
+// app.use(unless(checkJwt, "/account/login"));
 // app.all('*', checkJwt);
+
+// app.use(checkJwt.unless({ path: ['/account/login']}));
 
 // v1 api routes
 app.use("/v1", routes);
