@@ -9,7 +9,7 @@
         "ecmaVersion": 2018
     },
     "rules": {
-        "no-console": "error",
+        "no-console": 0,
         "func-names": "off",
         "no-underscore-dangle": "off",
         "consistent-return": "off",
