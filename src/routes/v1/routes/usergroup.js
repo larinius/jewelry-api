@@ -2,9 +2,8 @@ var express = require("express");
 var router = express.Router();
 
 const prisma = require ("./../../../utils/prisma");
-const { checkJwt } = require("./../../../auth/check-jwt");
 
-router.get("/", checkJwt, async function (req, res, next) {
+router.get("/", async function (req, res, next) {
     const data = await prisma.UserGroup.findMany();
     res.json(data);
 });
