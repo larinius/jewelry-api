@@ -55,7 +55,7 @@ app.use(cors({ origin: clientOrigins }));
 // auth
 app.use("/api/v1/account", accountRoute);
 
-app.use("/api/v1", checkJwt, routes);
+app.use("/api/v1", routes);
 
 // v1 api routes
 // app.use("/v1", routes);
