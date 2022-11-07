@@ -17,6 +17,12 @@ router
             },
         });
 
+        data = data.map((item) => {
+            item.imageCount = item.image.length;
+            item.price = (item.weight * 30.841).toFixed(2);
+            return item;
+        });
+
         res.json(data);
     })
     .get("/", async function (req, res, next) {
