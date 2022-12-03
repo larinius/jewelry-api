@@ -20,6 +20,7 @@ var { unless } = require("express-unless");
 
 const { errorConverter, errorHandler } = require("./middlewares/error");
 const ApiError = require("./utils/ApiError");
+const accountRoute = require("./routes/v1/routes/account");
 
 const app = express();
 
@@ -52,13 +53,14 @@ app.use(compression());
 app.use(cors({ origin: clientOrigins }));
 
 // auth
-// app.use(unless(checkJwt, "/account/login"));
-// app.all('*', checkJwt);
+app.use("/api/v1/account", accountRoute);
+
+app.use("/api/v1", routes);
 
 // app.use(checkJwt.unless({ path: ['/account/login']}));
 
 // v1 api routes
-app.use("/v1", routes);
+// app.use("/v1", routes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {

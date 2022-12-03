@@ -14,14 +14,14 @@ const productRoute = require("./routes/product");
 const searchRoute = require("./routes/search");
 const userRoute = require("./routes/user");
 const userGroupRoute = require("./routes/usergroup");
-const accountRoute = require("./routes/account");
+const sessionRoute = require("./routes/session");
 
 const router = express.Router();
 
 const defaultRoutes = [
     {
-        path: "/account",
-        route: accountRoute,
+        path: "/session",
+        route: sessionRoute,
     },
     {
         path: "/brand",

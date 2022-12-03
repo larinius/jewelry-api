@@ -6,26 +6,23 @@ var app = express();
 // var jwks = require("jwks-rsa");
 const jwt = require("jsonwebtoken");
 
-function checkJwt(req, res, next) {
-    // const authHeader = req.headers["authorization"];
-    const authHeader = req.header("authorization");
-    const token = authHeader && authHeader.split(" ")[1];
-    console.log(req.header);
-    if (token == null) {
-        return res.sendStatus(401);
-    }
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        console.log(err);
-
-        if (err) return res.sendStatus(403);
-
-        req.user = user;
-
-        next();
-    });
-}
-
 module.exports = {
-    checkJwt,
+    checkJwt: (req, res, next) => {
+        const authHeader = req.headers.authorization;
+
+        if (authHeader) {
+            const token = authHeader.split(" ")[1];
+
+            jwt.verify(token, accessTokenSecret, (err, user) => {
+                if (err) {
+                    return res.sendStatus(403);
+                }
+
+                req.user = user;
+                next();
+            });
+        } else {
+            res.sendStatus(401);
+        }
+    },
 };
