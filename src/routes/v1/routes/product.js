@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 
-const prisma = require ("./../../../utils/prisma");
+const prisma = require("./../../../utils/prisma");
 
 router
     .get("/:id", async function (req, res, next) {
@@ -26,18 +26,51 @@ router
         res.json(data);
     })
     .get("/", async function (req, res, next) {
+        const category = req.query.category || "";
+        // const sku = req.query.sku.replace("sku-", "") || "";
+        const sku = req.query.sku || "";
+        const limit = parseInt(req.query.limit) || 100;
+        const page = parseInt(req.query.page) || 0;
+
         const pricePerGram = await prisma.Settings.findFirst({
             where: {
                 title: "price per gram",
             },
         });
 
+        let categories = await prisma.Category.findMany({
+            select: {
+                title: true,                
+              },
+        })
+
+        categories = categories.map((item) => item.title);
+
+        const count = await prisma.product.findMany({
+            
+            distinct: ["sku"],
+            where: {
+                AND: [category ? { category: { title: { equals: category } } } : {}, 
+                    sku ? { sku: sku } : {}],
+            },
+        });
+
         let data = await prisma.product.findMany({
+            skip: page * limit,
+            take: limit,
+            distinct: ["sku"],
+            where: {
+                AND: [category ? { category: { title: { equals: category } } } : {}, 
+                    sku ? { sku: sku } : {}],
+            },
             include: {
                 category: true,
                 image: true,
+                brand: true,
             },
         });
+
+        if(data !== null){
 
         data = data.map((item) => {
             item.imageCount = item.image.length;
@@ -45,7 +78,19 @@ router
             return item;
         });
 
+        let meta  = {count: count.length, page: page, limit: limit, categories:categories};
+
+        if (category){
+            meta.category = category;
+        }
+        data = {products: data, meta};
+
         res.json(data);
+
+        }
+        else{
+            res.status(404);
+        }
     });
 
 module.exports = router;
