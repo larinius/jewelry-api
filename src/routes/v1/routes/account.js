@@ -14,7 +14,7 @@ router
 
         const user = await prisma.user.findUnique({
             where: {
-                email: req.body.email,
+                email: email,
             },
         });
 
@@ -28,7 +28,7 @@ router
 
             //if both match than you can do anything
             if (data) {
-                const serviceToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: 60 * 60 * 24 });
+                const serviceToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
                 return res.status(200).json({
                     serviceToken,
                     user: {
@@ -44,6 +44,7 @@ router
     })
     .get("/me", checkJwt, async function (req, res, next) {
 
+        console.log("ME", req.user);
         const user = await prisma.user.findUnique({
             where: {
                 id: req.user.userId,
@@ -51,7 +52,7 @@ router
         });
 
         if (!user) {
-            return res.status(400).json({ msg: "User not exist" });
+            return res.status(400).json({ msg: "User not exists" });
         } else {
             return res.status(200).json({
                 user: {
@@ -61,6 +62,60 @@ router
                 },
             });
         }
+    })
+    .post("/register", async function (req, res, next) {
+        const { email, password, name, phone } = req.body;
+
+        const user = await prisma.user.findUnique({
+            where: {
+                email: email,
+            },
+        });
+
+        if (user) {
+            return res.status(400).json({ msg: "User already exists" });
+        }
+
+        // Hash the password for storage in the database
+        bcrypt.hash(password, 10, async (err, hash) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+
+            // Store the user's information in the database
+            // const user = { email, password: hash };
+
+            const user = await prisma.User.create({
+                data: {
+                    email: email,
+                    password: hash,
+                    name: name || "",
+                    phone: phone || "",
+                    userGroup: {
+                        connectOrCreate: {
+                            where: {
+                                title: "Customer",
+                            },
+                            create: {
+                                title: "Customer",
+                            },
+                        },
+                    },
+                },
+            });
+
+            // Generate a JWT token
+            const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "7d" });
+
+            res.json({
+                token,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                },
+            });
+        });
     });
 
 module.exports = router;

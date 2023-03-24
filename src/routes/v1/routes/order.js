@@ -31,8 +31,9 @@ router
         });
         res.json(data);
     })
-    .post("/", checkJwt, async function (req, res, next) {
+    .post("/", async function (req, res, next) {
         const order = qs.parse(req.body);
+        console.log(order);
         try {
             const result = await prisma.$transaction(async () => {
                 const newOrder = await prisma.order.create({

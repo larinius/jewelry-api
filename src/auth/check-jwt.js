@@ -1,10 +1,7 @@
 /* eslint-disable security/detect-possible-timing-attacks */
 var express = require("express");
-var app = express();
-// var jwt = require("express-jwt"); Error
-// const { expressjwt: jwt } = require("express-jwt");
-// var jwks = require("jwks-rsa");
 const jwt = require("jsonwebtoken");
+const JWT_SECRET = process.env.JWT_SECRET;
 
 module.exports = {
     checkJwt: (req, res, next) => {
@@ -13,7 +10,7 @@ module.exports = {
         if (authHeader) {
             const token = authHeader.split(" ")[1];
 
-            jwt.verify(token, accessTokenSecret, (err, user) => {
+            jwt.verify(token, JWT_SECRET, (err, user) => {
                 if (err) {
                     return res.sendStatus(403);
                 }
