@@ -2,7 +2,7 @@ var express = require("express");
 var router = express.Router();
 
 const qs = require("qs");
-const prisma = require ("./../../../utils/prisma");
+const prisma = require("./../../../utils/prisma");
 const { checkJwt } = require("./../../../auth/check-jwt");
 
 router
@@ -33,6 +33,7 @@ router
     })
     .post("/", async function (req, res, next) {
         const order = qs.parse(req.body);
+        // const order = req.body;
         console.log(order);
         try {
             const result = await prisma.$transaction(async () => {
@@ -87,11 +88,36 @@ router
                                 },
                             },
                         });
-                        // console.log(data);
                     }
                 }
             });
             res.sendStatus(201);
+        } catch (error) {
+            res.sendStatus(400);
+        }
+    })
+    .delete("/:id", checkJwt, async function (req, res, next) {
+
+
+        console.log(req.user);
+
+        try {
+            const orderId = parseInt(req.params.id) || 0;
+            const user = await prisma.user.findUnique({
+                where: {
+                    id: req.user.userId,
+                },
+            });
+
+            if(user.userGroupId !== 3){
+              throw new Error('User not allowed to delete orders');
+            }
+            const result = await prisma.order.delete({
+                where: {
+                    id: orderId,
+                },
+            });
+            res.sendStatus(204);
         } catch (error) {
             res.sendStatus(400);
         }

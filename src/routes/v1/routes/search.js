@@ -4,7 +4,7 @@ var router = express.Router();
 const prisma = require("./../../../utils/prisma");
 const { checkJwt } = require("./../../../auth/check-jwt");
 
-router.get("/:id", checkJwt, async function (req, res, next) {
+router.get("/:id", async function (req, res, next) {
     const id = req.params.id;
 
     const pricePerGram = await prisma.Settings.findFirst({

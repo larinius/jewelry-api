@@ -44,7 +44,6 @@ router
     })
     .get("/me", checkJwt, async function (req, res, next) {
 
-        console.log("ME", req.user);
         const user = await prisma.user.findUnique({
             where: {
                 id: req.user.userId,
@@ -83,8 +82,6 @@ router
             }
 
             // Store the user's information in the database
-            // const user = { email, password: hash };
-
             const user = await prisma.User.create({
                 data: {
                     email: email,

@@ -9,6 +9,7 @@ const dummyRoute = require("./routes/dummy");
 const migrateRoute = require("./routes/migrate");
 const orderRoute = require("./routes/order");
 const orderstatusRoute = require("./routes/orderstatus");
+const ordercodeRoute = require("./routes/ordercode");
 const priceuploadRoute = require("./routes/priceupload");
 const productRoute = require("./routes/product");
 const searchRoute = require("./routes/search");
@@ -43,6 +44,10 @@ const defaultRoutes = [
         path: "/orderstatus",
         route: orderstatusRoute,
     },
+    {
+      path: "/ordercode",
+      route: ordercodeRoute,
+  },
     {
         path: "/priceupload",
         route: priceuploadRoute,
