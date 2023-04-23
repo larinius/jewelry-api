@@ -35,7 +35,8 @@ router
                 //if both match than you can do anything
                 if (data) {
                     const serviceToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
-                    res.cookie("serviceToken", serviceToken, { httpOnly: true });
+                    res.cookie("serviceToken", serviceToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 }, { path: '/' });
+
                     return res.status(200).json({
                         serviceToken,
                         user: {
@@ -45,7 +46,7 @@ router
                         },
                     });
                 } else {
-                    return res.status(401).json({ msg: "Invalid credencial" });
+                    return res.status(401).json({ msg: "Invalid credentials" });
                 }
             });
         } catch (error) {
