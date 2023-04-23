@@ -1,5 +1,7 @@
 // Middleware function to update the cookie's expiration time
-const updateCookie = (req, res, next) => {
+module.exports = {
+
+updateCookie: (req, res, next) => {
   const cookieName = "serviceToken";
   const cookie = req.cookies[cookieName];
   if (cookie) {
@@ -19,4 +21,6 @@ const updateCookie = (req, res, next) => {
     });
   }
   next();
+},
 };
+

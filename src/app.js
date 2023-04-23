@@ -16,7 +16,6 @@ const fileUpload = require("express-fileupload");
 
 const { clientOrigins } = require("./auth/env.dev");
 
-const { checkJwt } = require("./auth/check-jwt");
 var { unless } = require("express-unless");
 
 const { errorConverter, errorHandler } = require("./middlewares/error");
@@ -51,7 +50,10 @@ app.use(xss());
 app.use(compression());
 
 // enable cors
-app.use(cors({ origin: clientOrigins }));
+app.use(cors({
+  origin: clientOrigins,
+  credentials: true,
+}));
 
 // auth
 app.use("/api/v1/account", accountRoute);
