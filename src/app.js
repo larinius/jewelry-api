@@ -4,6 +4,7 @@ const xss = require("xss-clean");
 const compression = require("compression");
 const cors = require("cors");
 const httpStatus = require("http-status");
+
 const config = require("./config/config");
 const morgan = require("./config/morgan");
 const routes = require("./routes/v1");

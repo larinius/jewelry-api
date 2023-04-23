@@ -6,44 +6,52 @@ const prisma = require("../../../utils/prisma");
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_TIME = process.env.JWT_ACCESS_EXPIRATION_MINUTES;
 const { checkJwt } = require("./../../../auth/check-jwt");
+const cookieParser = require("cookie-parser");
 
 router
     .post("/login", async function (req, res, next) {
         const email = req.body.email;
         const password = req.body.password;
 
-        const user = await prisma.user.findUnique({
-            where: {
-                email: email,
-            },
-        });
+        console.log(req.body);
 
-        if (!user) {
-            return res.status(400).json({ msg: "User not exist" });
-        }
+        try {
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: email,
+                },
+            });
 
-        bcrypt.compare(password, user.password, (err, data) => {
-            //if error than throw error
-            if (err) throw err;
-
-            //if both match than you can do anything
-            if (data) {
-                const serviceToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
-                return res.status(200).json({
-                    serviceToken,
-                    user: {
-                        id: user.id,
-                        email: user.email,
-                        name: user.name,
-                    },
-                });
-            } else {
-                return res.status(401).json({ msg: "Invalid credencial" });
+            if (!user) {
+                return res.status(400).json({ msg: "User not exist" });
             }
-        });
+
+            bcrypt.compare(password, user.password, (err, data) => {
+                //if error than throw error
+                if (err) throw err;
+
+                //if both match than you can do anything
+                if (data) {
+                    const serviceToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
+                    res.cookie("serviceToken", serviceToken, { httpOnly: true });
+                    return res.status(200).json({
+                        serviceToken,
+                        user: {
+                            id: user.id,
+                            email: user.email,
+                            name: user.name,
+                        },
+                    });
+                } else {
+                    return res.status(401).json({ msg: "Invalid credencial" });
+                }
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ msg: "Internal server error" });
+        }
     })
     .get("/me", checkJwt, async function (req, res, next) {
-
         const user = await prisma.user.findUnique({
             where: {
                 id: req.user.userId,

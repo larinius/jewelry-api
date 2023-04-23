@@ -4,6 +4,7 @@ var router = express.Router();
 const qs = require("qs");
 const prisma = require("./../../../utils/prisma");
 const { checkJwt } = require("./../../../auth/check-jwt");
+const crypto = require('crypto');
 
 router
     .get("/:id", checkJwt, async function (req, res, next) {
@@ -31,22 +32,53 @@ router
         });
         res.json(data);
     })
+
     .post("/", async function (req, res, next) {
         const order = qs.parse(req.body);
         // const order = req.body;
         console.log(order);
+        const userPassword = crypto.randomBytes(8).toString('hex').slice(0, 16);
         try {
             const result = await prisma.$transaction(async () => {
+                let user = await prisma.user.findUnique({
+                    where: {
+                        email: order.user.email,
+                    },
+                });
+                if (!user) {
+                    console.log("new user", order.user);
+                    // create new customer if not found
+                    user = await prisma.User.create({
+                        data: {
+                            email: order.user.email,
+                            name: order.user.name,
+                            password: userPassword,
+                            phone: order.user.phone,
+                            userGroup: {
+                                connectOrCreate: {
+                                    where: {
+                                        title: "Customer",
+                                    },
+                                    create: {
+                                        title: "Customer",
+                                    },
+                                },
+                            },
+                        },
+                    });
+                    console.log("Created:", user);
+                }
+
                 const newOrder = await prisma.order.create({
                     data: {
                         user: {
                             connect: {
-                                id: parseInt(order.customer.id),
+                                id: user.id,
                             },
                         },
                         details: {
                             create: {
-                                phone: order.customer.phone,
+                                phone: order.user.phone,
                             },
                         },
                         products: {
@@ -68,6 +100,7 @@ router
                 });
 
                 console.log(newOrder);
+
                 if (order.products.length > 1) {
                     console.log(`Add more products ${order.products.length} found`);
                     for (let i = 1; i < order.products.length; i++) {
@@ -96,9 +129,8 @@ router
             res.sendStatus(400);
         }
     })
+
     .delete("/:id", checkJwt, async function (req, res, next) {
-
-
         console.log(req.user);
 
         try {
@@ -109,8 +141,8 @@ router
                 },
             });
 
-            if(user.userGroupId !== 3){
-              throw new Error('User not allowed to delete orders');
+            if (user.userGroupId !== 3) {
+                throw new Error("User not allowed to delete orders");
             }
             const result = await prisma.order.delete({
                 where: {

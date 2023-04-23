@@ -16,6 +16,7 @@ const searchRoute = require("./routes/search");
 const userRoute = require("./routes/user");
 const userGroupRoute = require("./routes/usergroup");
 const sessionRoute = require("./routes/session");
+const settingsRoute = require("./routes/settings");
 
 const router = express.Router();
 
@@ -67,6 +68,10 @@ const defaultRoutes = [
     {
         path: "/usergroup",
         route: userGroupRoute,
+    },
+    {
+        path: "/settings",
+        route: settingsRoute,
     },
 ];
 
