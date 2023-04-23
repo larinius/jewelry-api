@@ -1,11 +1,14 @@
 var express = require("express");
 const { checkJwt } = require("../../../auth/check-jwt");
+const { updateCookie } = require("../../../auth/update-cookie");
+const { checkRole } = require("./../../../auth/check-role");
+
 var router = express.Router();
 
 const prisma = require("./../../../utils/prisma");
 
 router
-    .get("/:id", checkJwt, async function (req, res, next) {
+    .get("/:id",  async function (req, res, next) {
         const id = parseInt(req.params.id) || 0;
 
         const data = await prisma.Settings.findUnique({
@@ -30,7 +33,7 @@ router
         }
     })
 
-    .post("/", checkJwt, async function (req, res, next) {
+    .post("/", updateCookie, checkJwt, checkRole, async function (req, res, next) {
         try {
             const user = await prisma.user.findUnique({
                 where: {
@@ -58,7 +61,7 @@ router
         }
     })
 
-    .put("/:id", checkJwt, async function (req, res, next) {
+    .put("/:id", updateCookie, checkJwt, checkRole, async function (req, res, next) {
         try {
             const user = await prisma.user.findUnique({
                 where: {
@@ -90,7 +93,7 @@ router
         }
     })
 
-    .delete("/:id", checkJwt, async function (req, res, next) {
+    .delete("/:id", updateCookie, checkJwt, checkRole, async function (req, res, next) {
         try {
             const user = await prisma.user.findUnique({
                 where: {

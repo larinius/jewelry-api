@@ -2,7 +2,7 @@ var express = require("express");
 var router = express.Router();
 
 const prisma = require("./../../../utils/prisma");
-const { checkJwt } = require("./../../../auth/check-jwt");
+
 
 router.get("/:id", async function (req, res, next) {
     const id = req.params.id;

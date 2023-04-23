@@ -1,6 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const http = require("http");
+const { verify } = require('jsonwebtoken');
 
 const StatusUnauthorized = 401;
 const StatusForbidden = 403;
@@ -15,20 +16,28 @@ if (!JWT_SECRET) {
 module.exports = {
     checkJwt: async (req, res, next) => {
         const authHeader = req.headers.authorization;
-
-        if (!authHeader) {
+        console.log("HEADER", authHeader);
+        console.log("COOKIES", req.cookies);
+        if (!authHeader && !req.cookies.serviceToken) {
+            console.log("No auth header or cookie");
             return res.sendStatus(StatusUnauthorized);
         }
 
-        const [bearer, token] = authHeader.split(" ");
-
-        if (bearer !== "Bearer") {
-            return res.sendStatus(StatusUnauthorized);
+        let token;
+        if (authHeader) {
+            const [bearer, authToken] = authHeader.split(' ');
+            if (bearer === 'Bearer') {
+                token = authToken;
+            } else {
+                return res.sendStatus(StatusUnauthorized);
+            }
+        } else {
+            token = req.cookies.serviceToken;
         }
 
         try {
-            const user = await jwt.verify(token, JWT_SECRET, { algorithms: ["HS256"] });
-            req.user = user;
+            const decoded = await verify(token, JWT_SECRET, { algorithms: ["HS256"] });
+            req.user = decoded;
             next();
         } catch (err) {
             console.error("JWT verification failed: ", err);

@@ -5,8 +5,10 @@ const jwt = require("jsonwebtoken");
 const prisma = require("../../../utils/prisma");
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_TIME = process.env.JWT_ACCESS_EXPIRATION_MINUTES;
-const { checkJwt } = require("./../../../auth/check-jwt");
 const cookieParser = require("cookie-parser");
+
+const { checkJwt } = require("./../../../auth/check-jwt");
+const { updateCookie } = require("./../../../auth/update-cookie");
 
 router
     .post("/login", async function (req, res, next) {
@@ -51,7 +53,7 @@ router
             return res.status(500).json({ msg: "Internal server error" });
         }
     })
-    .get("/me", checkJwt, async function (req, res, next) {
+    .get("/me", updateCookie, checkJwt, async function (req, res, next) {
         const user = await prisma.user.findUnique({
             where: {
                 id: req.user.userId,
@@ -121,6 +123,11 @@ router
                 },
             });
         });
+    })
+    .post("/logout", updateCookie, checkJwt, async function (req, res, next) {
+      res.clearCookie("serviceToken");
+      res.sendStatus(200);
     });
+
 
 module.exports = router;

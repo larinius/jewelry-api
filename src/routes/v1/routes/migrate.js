@@ -4,8 +4,10 @@ var router = express.Router();
 const faker = require("@faker-js/faker");
 const prisma = require("./../../../utils/prisma");
 const { checkJwt } = require("./../../../auth/check-jwt");
+const { updateCookie } = require("./../../../auth/update-cookie");
+const { checkRole } = require("./../../../auth/check-role");
 
-router.put("/", checkJwt, async function (req, res, next) {
+router.put("/", updateCookie, checkJwt, checkRole, async function (req, res, next) {
     let data;
 
     data = await prisma.UserGroup.createMany({

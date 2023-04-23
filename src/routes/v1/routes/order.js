@@ -3,11 +3,14 @@ var router = express.Router();
 
 const qs = require("qs");
 const prisma = require("./../../../utils/prisma");
-const { checkJwt } = require("./../../../auth/check-jwt");
 const crypto = require('crypto');
 
+const { checkJwt } = require("./../../../auth/check-jwt");
+const { updateCookie } = require("./../../../auth/update-cookie");
+const { checkRole } = require("./../../../auth/check-role");
+
 router
-    .get("/:id", checkJwt, async function (req, res, next) {
+    .get("/:id", updateCookie, checkJwt, checkRole, async function (req, res, next) {
         const id = parseInt(req.params.id) || 0;
 
         const data = await prisma.order.findUnique({
@@ -22,7 +25,7 @@ router
         });
         res.json(data);
     })
-    .get("/", checkJwt, async function (req, res, next) {
+    .get("/", updateCookie, checkJwt, checkRole, async function (req, res, next) {
         const data = await prisma.order.findMany({
             include: {
                 user: true,
@@ -130,20 +133,12 @@ router
         }
     })
 
-    .delete("/:id", checkJwt, async function (req, res, next) {
+    .delete("/:id", updateCookie, checkJwt, checkRole, async function (req, res, next) {
         console.log(req.user);
 
         try {
             const orderId = parseInt(req.params.id) || 0;
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: req.user.userId,
-                },
-            });
 
-            if (user.userGroupId !== 3) {
-                throw new Error("User not allowed to delete orders");
-            }
             const result = await prisma.order.delete({
                 where: {
                     id: orderId,
