@@ -3,7 +3,7 @@ var router = express.Router();
 
 const qs = require("qs");
 const prisma = require("./../../../utils/prisma");
-const crypto = require('crypto');
+const crypto = require("crypto");
 
 const { checkJwt } = require("./../../../auth/check-jwt");
 const { updateCookie } = require("./../../../auth/update-cookie");
@@ -13,34 +13,90 @@ router
     .get("/:id", updateCookie, checkJwt, checkRole, async function (req, res, next) {
         const id = parseInt(req.params.id) || 0;
 
-        const data = await prisma.order.findUnique({
-            where: {
-                id: id,
-            },
-            include: {
-                user: true,
-                status: true,
-                products: { include: { product: true } },
-            },
-        });
-        res.json(data);
+        try {
+            const user = await prisma.user.findUnique({
+                where: {
+                    id: req.user.userId,
+                },
+            });
+
+            if (user.userGroupId === 3) {
+                // admin order by id
+                const data = await prisma.order.findUnique({
+                    where: {
+                        id: id,
+                    },
+                    include: {
+                        user: true,
+                        status: true,
+                        products: { include: { product: true } },
+                    },
+                });
+                res.json(data);
+            } else {
+                // customer orders
+                const data = await prisma.order.findMany({
+                    where: {
+                        id: id,
+                        userId: user.id,
+                    },
+                    include: {
+                        user: true,
+                        status: true,
+                        products: { include: { product: true } },
+                    },
+                });
+                if (data.length === 0) {
+                    return res.status(404).json({ message: "Order not found" });
+                }
+                res.json(data[0]);
+            }
+        } catch (error) {
+            res.status(401).json({ message: "Error getting orders" });
+        }
     })
-    .get("/", updateCookie, checkJwt, checkRole, async function (req, res, next) {
-        const data = await prisma.order.findMany({
-            include: {
-                user: true,
-                status: true,
-                products: { include: { product: true } },
-            },
-        });
-        res.json(data);
+    .get("/", updateCookie, checkJwt, async function (req, res, next) {
+        try {
+            const user = await prisma.user.findUnique({
+                where: {
+                    id: req.user.userId,
+                },
+            });
+
+            if (user.userGroupId === 3) {
+                // admin orders
+                const data = await prisma.order.findMany({
+                    include: {
+                        user: true,
+                        status: true,
+                        products: { include: { product: true } },
+                    },
+                });
+                res.json(data);
+            } else {
+                // customer orders
+                const data = await prisma.order.findMany({
+                    where: {
+                        userId: user.id,
+                    },
+                    include: {
+                        user: true,
+                        status: true,
+                        products: { include: { product: true } },
+                    },
+                });
+                res.json(data);
+            }
+        } catch (error) {
+            res.status(401).json({ message: "Error getting orders" });
+        }
     })
 
     .post("/", async function (req, res, next) {
         const order = qs.parse(req.body);
         // const order = req.body;
         console.log(order);
-        const userPassword = crypto.randomBytes(8).toString('hex').slice(0, 16);
+        const userPassword = crypto.randomBytes(8).toString("hex").slice(0, 16);
         try {
             const result = await prisma.$transaction(async () => {
                 let user = await prisma.user.findUnique({

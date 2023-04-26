@@ -125,7 +125,7 @@ router
             });
         });
     })
-    .post("/logout", updateCookie, checkJwt, async function (req, res, next) {
+    .post("/logout", checkJwt, async function (req, res, next) {
       res.clearCookie("serviceToken");
       res.sendStatus(200);
     });
