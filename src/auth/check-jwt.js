@@ -16,8 +16,7 @@ if (!JWT_SECRET) {
 module.exports = {
     checkJwt: async (req, res, next) => {
         const authHeader = req.headers.authorization;
-        console.log("HEADER", authHeader);
-        console.log("COOKIES", req.cookies);
+
         if (!authHeader && !req.cookies.serviceToken) {
             console.log("No auth header or cookie");
             return res.sendStatus(StatusUnauthorized);

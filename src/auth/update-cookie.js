@@ -5,7 +5,7 @@ updateCookie: (req, res, next) => {
   const cookieName = "serviceToken";
   const cookie = req.cookies[cookieName];
   if (cookie) {
-    console.log("COOKIE", cookie);
+
     // const { exp } = jwt.decode(cookie);
 
     // if (Date.now() > exp * 1000) {

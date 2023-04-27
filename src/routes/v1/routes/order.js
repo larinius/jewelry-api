@@ -10,6 +10,32 @@ const { updateCookie } = require("./../../../auth/update-cookie");
 const { checkRole } = require("./../../../auth/check-role");
 
 router
+    .get("/my", updateCookie, checkJwt, async function (req, res, next) {
+        console.log("MY ORDERS");
+        try {
+            const user = await prisma.user.findUnique({
+                where: {
+                    id: req.user.userId,
+                },
+            });
+
+            // customer orders
+            const data = await prisma.order.findMany({
+                where: {
+                    userId: user.id,
+                },
+                include: {
+                    user: true,
+                    status: true,
+                    products: { include: { product: true } },
+                },
+            });
+            res.json(data);
+        } catch (error) {
+            res.status(401).json({ message: "Error getting orders" });
+        }
+    })
+
     .get("/:id", updateCookie, checkJwt, checkRole, async function (req, res, next) {
         const id = parseInt(req.params.id) || 0;
 
@@ -55,7 +81,8 @@ router
             res.status(401).json({ message: "Error getting orders" });
         }
     })
-    .get("/", updateCookie, checkJwt, async function (req, res, next) {
+
+    .get("/", updateCookie, checkJwt, checkRole, async function (req, res, next) {
         try {
             const user = await prisma.user.findUnique({
                 where: {
@@ -204,6 +231,44 @@ router
         } catch (error) {
             res.sendStatus(400);
         }
+    })
+
+    .delete('/:id/cancel', checkJwt, async (req, res) => {
+      const { id } = req.params;
+
+      try {
+
+        const user = await prisma.user.findUnique({
+          where: {
+              id: req.user.userId,
+          },
+        });
+
+        // Get the order from the database
+        const order = await Order.findById(id);
+
+        if (!order) {
+          return res.status(404).json({ message: 'Order not found' });
+        }
+
+        if (order.userId !== user.id) {
+          return res.status(400).json({ message: 'Access denied' });
+        }
+
+        // Check if the order is already cancelled
+        if (order.status === 4) {
+          return res.status(400).json({ message: 'Order is already cancelled' });
+        }
+
+        // Update the order status to cancelled
+        order.status = 4;
+        await order.save();
+
+        return res.status(200).json({ message: 'Order cancelled successfully' });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
     });
 
 module.exports = router;
