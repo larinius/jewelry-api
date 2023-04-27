@@ -9,12 +9,14 @@ const dummyRoute = require("./routes/dummy");
 const migrateRoute = require("./routes/migrate");
 const orderRoute = require("./routes/order");
 const orderstatusRoute = require("./routes/orderstatus");
+const ordercodeRoute = require("./routes/ordercode");
 const priceuploadRoute = require("./routes/priceupload");
 const productRoute = require("./routes/product");
 const searchRoute = require("./routes/search");
 const userRoute = require("./routes/user");
 const userGroupRoute = require("./routes/usergroup");
 const sessionRoute = require("./routes/session");
+const settingsRoute = require("./routes/settings");
 
 const router = express.Router();
 
@@ -44,6 +46,10 @@ const defaultRoutes = [
         route: orderstatusRoute,
     },
     {
+      path: "/ordercode",
+      route: ordercodeRoute,
+  },
+    {
         path: "/priceupload",
         route: priceuploadRoute,
     },
@@ -62,6 +68,10 @@ const defaultRoutes = [
     {
         path: "/usergroup",
         route: userGroupRoute,
+    },
+    {
+        path: "/settings",
+        route: settingsRoute,
     },
 ];
 

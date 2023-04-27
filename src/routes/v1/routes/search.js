@@ -3,6 +3,7 @@ var router = express.Router();
 
 const prisma = require("./../../../utils/prisma");
 
+
 router.get("/:id", async function (req, res, next) {
     const id = req.params.id;
 

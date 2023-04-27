@@ -2,28 +2,9 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const audience = process.env.AUTH0_AUDIENCE;
-const domain = process.env.AUTH0_DOMAIN;
-const serverPort = process.env.SERVER_PORT;
+
 const clientOriginUrl = process.env.CLIENT_ORIGIN_URL;
 
-if (!audience) {
-    throw new Error(
-        '.env is missing the definition of an AUTH0_AUDIENCE environmental variable'
-    );
-}
-
-if (!domain) {
-    throw new Error(
-        '.env is missing the definition of an AUTH0_DOMAIN environmental variable'
-    );
-}
-
-if (!serverPort) {
-    throw new Error(
-        '.env is missing the definition of a API_PORT environmental variable'
-    );
-}
 
 if (!clientOriginUrl) {
     throw new Error(
@@ -31,12 +12,16 @@ if (!clientOriginUrl) {
     );
 }
 
-const clientOrigins = ['http://localhost:3000'];
+const clientOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:3003',
+  "http://192.168.0.4",
+  "https://jevelry-store-av12.vercel.app"
+];
 
 module.exports = {
-    audience,
-    domain,
-    serverPort,
     clientOriginUrl,
     clientOrigins,
 };

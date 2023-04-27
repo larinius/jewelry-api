@@ -1,28 +1,46 @@
-/* eslint-disable security/detect-possible-timing-attacks */
-var express = require("express");
-var app = express();
-// var jwt = require("express-jwt"); Error
-// const { expressjwt: jwt } = require("express-jwt");
-// var jwks = require("jwks-rsa");
+const express = require("express");
 const jwt = require("jsonwebtoken");
+const http = require("http");
+const { verify } = require('jsonwebtoken');
+
+const StatusUnauthorized = 401;
+const StatusForbidden = 403;
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+    console.error("JWT_SECRET environment variable not set.");
+    process.exit(1);
+}
 
 module.exports = {
-    checkJwt: (req, res, next) => {
+    checkJwt: async (req, res, next) => {
         const authHeader = req.headers.authorization;
 
+        if (!authHeader && !req.cookies.serviceToken) {
+            console.log("No auth header or cookie");
+            return res.sendStatus(StatusUnauthorized);
+        }
+
+        let token;
         if (authHeader) {
-            const token = authHeader.split(" ")[1];
-
-            jwt.verify(token, accessTokenSecret, (err, user) => {
-                if (err) {
-                    return res.sendStatus(403);
-                }
-
-                req.user = user;
-                next();
-            });
+            const [bearer, authToken] = authHeader.split(' ');
+            if (bearer === 'Bearer') {
+                token = authToken;
+            } else {
+                return res.sendStatus(StatusUnauthorized);
+            }
         } else {
-            res.sendStatus(401);
+            token = req.cookies.serviceToken;
+        }
+
+        try {
+            const decoded = await verify(token, JWT_SECRET, { algorithms: ["HS256"] });
+            req.user = decoded;
+            next();
+        } catch (err) {
+            console.error("JWT verification failed: ", err);
+            return res.sendStatus(StatusForbidden);
         }
     },
 };

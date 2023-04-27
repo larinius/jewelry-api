@@ -4,6 +4,7 @@ const xss = require("xss-clean");
 const compression = require("compression");
 const cors = require("cors");
 const httpStatus = require("http-status");
+
 const config = require("./config/config");
 const morgan = require("./config/morgan");
 const routes = require("./routes/v1");
@@ -15,7 +16,6 @@ const fileUpload = require("express-fileupload");
 
 const { clientOrigins } = require("./auth/env.dev");
 
-const { checkJwt } = require("./auth/check-jwt");
 var { unless } = require("express-unless");
 
 const { errorConverter, errorHandler } = require("./middlewares/error");
@@ -50,12 +50,17 @@ app.use(xss());
 app.use(compression());
 
 // enable cors
-app.use(cors({ origin: clientOrigins }));
+app.use(cors({
+  origin: clientOrigins,
+  credentials: true,
+}));
 
 // auth
 app.use("/api/v1/account", accountRoute);
 
 app.use("/api/v1", routes);
+
+// app.use(checkJwt.unless({ path: ['/account/login']}));
 
 // v1 api routes
 // app.use("/v1", routes);

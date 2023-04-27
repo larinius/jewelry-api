@@ -2,9 +2,12 @@ var express = require("express");
 var router = express.Router();
 
 const prisma = require ("./../../../utils/prisma");
+const { checkJwt } = require("./../../../auth/check-jwt");
+const { updateCookie } = require("./../../../auth/update-cookie");
+const { checkRole } = require("./../../../auth/check-role");
 
 router
-    .get("/:id", async function (req, res, next) {
+    .get("/:id", updateCookie, checkJwt, checkRole, async function (req, res, next) {
         const id = parseInt(req.params.id) || 0;
 
         const data = await prisma.user.findUnique({
@@ -22,7 +25,7 @@ router
         });
         res.json(data);
     })
-    .get("/", async function (req, res, next) {
+    .get("/", updateCookie, checkJwt, checkRole, async function (req, res, next) {
         const data = await prisma.user.findMany({
             include: {
                 userGroup: true,
