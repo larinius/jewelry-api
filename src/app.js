@@ -50,21 +50,12 @@ app.use(xss());
 app.use(compression());
 
 const corsOptions = {
-  origin: clientOrigins,
-  methods: ['GET, POST, PUT, DELETE, OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-  credentials: true,
+    origin: clientOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
 };
 app.use(cors(corsOptions));
-
-
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', req.headers.origin);
-//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-//   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-//   res.header('Access-Control-Allow-Credentials', true);
-//   next();
-// });
 
 // auth
 app.use("/api/v1/account", accountRoute);
