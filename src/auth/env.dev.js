@@ -18,7 +18,7 @@ const clientOrigins = [
   'http://localhost:3002',
   'http://localhost:3003',
   "http://192.168.0.4",
-  "https://jevelry-store-av12.vercel.app"
+  "https://jevelry-store-av12.vercel.app",
 ];
 
 module.exports = {
