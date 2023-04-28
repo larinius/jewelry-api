@@ -49,19 +49,22 @@ app.use(xss());
 // gzip compression
 app.use(compression());
 
-// enable cors
-app.use(cors({
+const corsOptions = {
   origin: clientOrigins,
+  methods: ['GET, POST, PUT, DELETE, OPTIONS'],
+  allowedHeaders: ['Content-Type'],
   credentials: true,
-}));
+};
+app.use(cors(corsOptions));
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin);
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', true);
-  next();
-});
+
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', req.headers.origin);
+//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+//   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//   res.header('Access-Control-Allow-Credentials', true);
+//   next();
+// });
 
 // auth
 app.use("/api/v1/account", accountRoute);
