@@ -18,18 +18,18 @@ const { clientOrigins } = require("./auth/env.dev");
 
 const rateLimit = require('express-rate-limit');
 
+const { errorConverter, errorHandler } = require("./middlewares/error");
+const ApiError = require("./utils/ApiError");
+const accountRoute = require("./routes/v1/routes/account");
+
+const app = express();
+
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 300 // limit each IP to 300 requests per windowMs
 });
 
 app.use(limiter);
-
-const { errorConverter, errorHandler } = require("./middlewares/error");
-const ApiError = require("./utils/ApiError");
-const accountRoute = require("./routes/v1/routes/account");
-
-const app = express();
 
 if (config.env !== "test") {
     app.use(morgan.successHandler);
@@ -55,6 +55,8 @@ app.use(xss());
 
 // gzip compression
 app.use(compression());
+
+
 
 const corsOptions = {
     origin: clientOrigins,
