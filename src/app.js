@@ -16,7 +16,14 @@ const fileUpload = require("express-fileupload");
 
 const { clientOrigins } = require("./auth/env.dev");
 
-var { unless } = require("express-unless");
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 300 // limit each IP to 300 requests per windowMs
+});
+
+app.use(limiter);
 
 const { errorConverter, errorHandler } = require("./middlewares/error");
 const ApiError = require("./utils/ApiError");
@@ -58,14 +65,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // auth
-app.use("/api/v1/account", accountRoute);
+app.use("/api/v1/account", limiter, accountRoute);
 
-app.use("/api/v1", routes);
+app.use("/api/v1", limiter, routes);
 
-// app.use(checkJwt.unless({ path: ['/account/login']}));
-
-// v1 api routes
-// app.use("/v1", routes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
