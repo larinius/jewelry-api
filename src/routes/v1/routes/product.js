@@ -33,7 +33,7 @@ router
       const sku = req.query.sku || "";
       const limit = parseInt(req.query.limit) || 100;
       const page = parseInt(req.query.page) || 0;
-      const query = req.query.q || ""; // Add the new query parameter
+      const query = req.query.q || "";
 
       try {
         const pricePerGram = await prisma.Settings.findFirst({
@@ -58,8 +58,8 @@ router
               query
                 ? {
                     OR: [
-                      { sku: { contains: query } }, // Search in sku field
-                      { title: { contains: query } }, // Search in title field
+                      { sku: { contains: query } },
+                      { title: { contains: query } },
                     ],
                   }
                 : {},
