@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 
-const prisma = require ("./../../../utils/prisma");
+const prisma = require("./../../../utils/prisma");
 const { checkJwt } = require("./../../../auth/check-jwt");
 const { updateCookie } = require("./../../../auth/update-cookie");
 const { checkRole } = require("./../../../auth/check-role");
@@ -26,12 +26,21 @@ router
         res.json(data);
     })
     .get("/", updateCookie, checkJwt, checkRole, async function (req, res, next) {
-        const data = await prisma.user.findMany({
-            include: {
-                userGroup: true,
-            },
-        });
-        res.json(data);
+        const query = req.query.q || "";
+        try {
+            const data = await prisma.user.findMany({
+                include: {
+                    userGroup: true,
+                },
+                where: {
+                    OR: [{ name: { contains: query } }, { phone: { contains: query } }, { id: parseInt(query) || undefined }],
+                },
+            });
+            res.json(data);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: "Internal server error" });
+        }
     });
 
 module.exports = router;
