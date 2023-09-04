@@ -29,10 +29,10 @@ router
             }
 
             bcrypt.compare(password, user.password, (err, data) => {
-                //if error than throw error
+
                 if (err) throw err;
 
-                //if both match than you can do anything
+
                 if (data) {
                     const serviceToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
                     res.cookie("serviceToken", serviceToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 }, { path: '/' });
